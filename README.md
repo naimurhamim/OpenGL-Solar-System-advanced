@@ -289,22 +289,6 @@ Updates per frame:
 
 ---
 
-## GitHub Upload Commands
-
-```bash
-git init
-git add .
-git commit -m "Initial commit - OpenGL Solar System"
-
-git branch -M main
-
-git remote add origin https://github.com/YOUR_USERNAME/OpenGL-Solar-System.git
-
-git push -u origin main
-```
-
----
-
 ## Submitted By
 
 **MD Naimur Rashid**

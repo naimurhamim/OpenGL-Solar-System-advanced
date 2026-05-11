@@ -24,6 +24,7 @@ bool  increaseStar   = false;
 bool showOrbits = true;
 bool showLabels = true;
 bool nightMode  = false;
+bool showLighting = true;
 
 // Sun pulse
 float sunPulse     = 0.0f;
@@ -108,6 +109,34 @@ float dist2(float ax, float ay, float bx, float by)
     return sqrtf(dx*dx + dy*dy);
 }
 
+void drawShadowOverlay(float px, float py, float rx, float ry, float shadowStrength)
+{
+    if(!showLighting) return;
+
+    float dx = px, dy = py;
+    float dist = sqrtf(dx*dx + dy*dy);
+    if(dist < 0.001f) return;
+
+    float lx = dx / dist;
+    float ly = dy / dist;
+
+    // Gradient shadow — lit side থেকে dark side এ fade
+    glBegin(GL_TRIANGLE_FAN);
+    glColor4f(0.0f, 0.0f, 0.0f, shadowStrength * 0.5f);
+    glVertex2f(px + lx * rx * 0.3f, py + ly * ry * 0.3f);
+    for(int i = 0; i <= 100; i++)
+    {
+        float a   = 2.0f * 3.1416f * i / 100;
+        float vx  = cosf(a);
+        float vy  = sinf(a);
+        float dot = vx * lx + vy * ly;
+        float alpha = (dot > 0.0f) ? dot * dot * shadowStrength : 0.0f;
+        glColor4f(0.0f, 0.0f, 0.0f, alpha);
+        glVertex2f(rx * vx + px, ry * vy + py);
+    }
+    glEnd();
+}
+
 // ==================== CAMERA ====================
 
 void updateCamera()
@@ -158,7 +187,7 @@ void drawInfoPanel()
     sprintf(buf, "Speed : %.4f", speed);
     drawText(px, py - lh*6.5f, buf);
 
-    // Controls hint — bottom left
+    // Controls hint � bottom left
     float hy = -zoom + camY + 0.4f;
     glColor3f(0.45f, 0.45f, 0.45f);
     drawText(px, hy + lh*5, "1-8: Follow  0: Sun  F: Free cam");
@@ -324,11 +353,13 @@ void Draw()
     // ==================== MERCURY ====================
     glColor3f(0.8f, 0.5f, 0.2f);
     circle(0.3f, 0.3f, budhX, budhY);
+    drawShadowOverlay(budhX, budhY, 0.3f, 0.3f, 0.85f);
     if(showLabels) { glColor3f(1,1,1); drawText(budhX+0.4f, budhY+0.4f, "Mercury"); }
 
     // ==================== VENUS ====================
     glColor3f(1.0f, 0.9f, 0.3f);
     circle(0.5f, 0.5f, sukroX, sukroY);
+    drawShadowOverlay(sukroX, sukroY, 0.5f, 0.5f, 0.80f);
     if(showLabels) { glColor3f(1,1,1); drawText(sukroX+0.6f, sukroY+0.6f, "Venus"); }
 
     // ==================== EARTH ====================
@@ -342,6 +373,7 @@ void Draw()
     circle(0.25f, 0.18f,  0.18f,  0.08f);
     circle(0.15f, 0.12f, -0.2f, -0.1f);
     glPopMatrix();
+    drawShadowOverlay(earthX, earthY, 0.6f, 0.6f, 0.80f);
     if(showLabels) { glColor3f(1,1,1); drawText(earthX+0.7f, earthY+0.7f, "Earth"); }
 
     // Earth Moon orbit
@@ -360,6 +392,7 @@ void Draw()
     // ==================== MARS ====================
     glColor3f(1.0f, 0.22f, 0.22f);
     circle(0.5f, 0.5f, marsX, marsY);
+    drawShadowOverlay(marsX, marsY, 0.5f, 0.5f, 0.85f);
     if(showLabels) { glColor3f(1,1,1); drawText(marsX+0.6f, marsY+0.6f, "Mars"); }
 
     float mm1x = marsX + 0.9f * cosf(angle * 5);
@@ -391,6 +424,7 @@ void Draw()
         glEnd();
     }
     glPopMatrix();
+    drawShadowOverlay(jupX, jupY, 1.0f, 1.0f, 0.75f);
     if(showLabels) { glColor3f(1,1,1); drawText(jupX+1.1f, jupY+1.1f, "Jupiter"); }
 
     for(int i = 0; i < 3; i++)
@@ -406,34 +440,41 @@ void Draw()
     circle(0.9f, 0.9f, satX, satY);
     if(showLabels) { glColor3f(1,1,1); drawText(satX+1.0f, satY+1.0f, "Saturn"); }
 
-    // Double ring with fill
-    glColor4f(0.85f, 0.75f, 0.45f, 0.85f);
-    glBegin(GL_LINE_LOOP);
-    for(int i = 0; i < 200; i++)
-    {
-        float a = 2*3.1416f*i/200;
-        glVertex2f(1.4f*cosf(a)+satX, 0.55f*sinf(a)+satY);
-    }
-    glEnd();
-    glColor4f(0.75f, 0.62f, 0.32f, 0.65f);
-    glBegin(GL_LINE_LOOP);
-    for(int i = 0; i < 200; i++)
-    {
-        float a = 2*3.1416f*i/200;
-        glVertex2f(1.75f*cosf(a)+satX, 0.68f*sinf(a)+satY);
-    }
-    glEnd();
-    // Ring fill (semi-transparent band)
-    glColor4f(0.82f, 0.70f, 0.40f, 0.18f);
+    // Inner ring (B ring)
+    glColor4f(0.85f, 0.75f, 0.45f, 0.75f);
     glBegin(GL_QUAD_STRIP);
-    for(int i = 0; i <= 100; i++)
-    {
-        float a = 2*3.1416f*i/100;
-        glVertex2f(1.4f*cosf(a)+satX,  0.55f*sinf(a)+satY);
-        glVertex2f(1.75f*cosf(a)+satX, 0.68f*sinf(a)+satY);
+    for(int i = 0; i <= 200; i++) {
+        float a = 2*3.1416f*i/200;
+        glVertex2f(1.05f*cosf(a)+satX, 0.40f*sinf(a)+satY);
+        glVertex2f(1.30f*cosf(a)+satX, 0.50f*sinf(a)+satY);
     }
     glEnd();
 
+    // Cassini Division (dark gap)
+    glColor4f(0.0f, 0.0f, 0.0f, 0.85f);
+    glBegin(GL_QUAD_STRIP);
+    for(int i = 0; i <= 200; i++) {
+        float a = 2*3.1416f*i/200;
+        glVertex2f(1.30f*cosf(a)+satX, 0.50f*sinf(a)+satY);
+        glVertex2f(1.40f*cosf(a)+satX, 0.54f*sinf(a)+satY);
+    }
+    glEnd();
+
+    // Outer ring (A ring)
+    glColor4f(0.78f, 0.65f, 0.35f, 0.60f);
+    glBegin(GL_QUAD_STRIP);
+    for(int i = 0; i <= 200; i++) {
+        float a = 2*3.1416f*i/200;
+        glVertex2f(1.40f*cosf(a)+satX, 0.54f*sinf(a)+satY);
+        glVertex2f(1.72f*cosf(a)+satX, 0.66f*sinf(a)+satY);
+    }
+    glEnd();
+
+    glColor3f(0.9f, 0.8f, 0.5f);
+    circle(0.9f, 0.9f, satX, satY);
+    drawShadowOverlay(satX, satY, 0.9f, 0.9f, 0.75f);
+
+    // Saturn moon
     float smx = satX + 1.95f * cosf(angle * 2);
     float smy = satY + 1.95f * sinf(angle * 2);
     glColor3f(0.8f, 0.8f, 0.8f);
@@ -442,6 +483,7 @@ void Draw()
     // ==================== URANUS ====================
     glColor3f(0.5f, 1.0f, 1.0f);
     circle(0.7f, 0.7f, uraX, uraY);
+    drawShadowOverlay(uraX, uraY, 0.7f, 0.7f, 0.78f);
     // Tilted ring
     glColor4f(0.5f, 0.9f, 0.9f, 0.55f);
     glBegin(GL_LINE_LOOP);
@@ -461,6 +503,7 @@ void Draw()
     // ==================== NEPTUNE ====================
     glColor3f(0.15f, 0.15f, 1.0f);
     circle(0.7f, 0.7f, nepX, nepY);
+    drawShadowOverlay(nepX, nepY, 0.7f, 0.7f, 0.80f);
     if(showLabels) { glColor3f(1,1,1); drawText(nepX+0.8f, nepY+0.8f, "Neptune"); }
 
     float nmx = nepX + 1.4f * cosf(angle * 1.8f);
@@ -560,6 +603,7 @@ void keyboard(unsigned char key, int x, int y)
     if(key == 'l' || key == 'L') showLabels = !showLabels;
     if(key == 'n' || key == 'N') nightMode  = !nightMode;
     if(key == 'f' || key == 'F') { followPlanet = -1; targetZoom = 25; }
+    if(key == 'g' || key == 'G') showLighting = !showLighting;
 
     if(key == '0') { followPlanet = 0; selectedPlanet = 0; targetZoom = 12; }
     if(key == '1') { followPlanet = 1; selectedPlanet = 1; targetZoom = 5;  }

@@ -1,10 +1,10 @@
+# OpenGL Solar System
 ![C++](https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
 ![OpenGL](https://img.shields.io/badge/OpenGL-5586A4?style=for-the-badge&logo=opengl&logoColor=white)
 ![GLUT](https://img.shields.io/badge/GLUT-FreeGLUT-orange?style=for-the-badge)
 ![Computer Graphics](https://img.shields.io/badge/Computer%20Graphics-Simulation-blueviolet?style=for-the-badge)
 ![Solar System](https://img.shields.io/badge/Solar%20System-3D%20Animation-yellow?style=for-the-badge)
 
-# OpenGL Solar System
 
 A Computer Graphics project developed using **C++**, **OpenGL**, and **GLUT**.  
 This project simulates a real-time animated solar system with interactive camera controls, planet following, zoom, speed control, and a detailed info panel.

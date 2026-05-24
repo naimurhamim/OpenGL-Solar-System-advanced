@@ -1,4 +1,4 @@
-# OpenGL Solar System
+# OpenGL Solar System 2D
 ![C++](https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
 ![OpenGL](https://img.shields.io/badge/OpenGL-5586A4?style=for-the-badge&logo=opengl&logoColor=white)
 ![GLUT](https://img.shields.io/badge/GLUT-FreeGLUT-orange?style=for-the-badge)
@@ -8,6 +8,16 @@
 
 A Computer Graphics project developed using **C++**, **OpenGL**, and **GLUT**.  
 This project simulates a real-time animated solar system with interactive camera controls, planet following, zoom, speed control, and a detailed info panel.
+
+## 🎬 Demo Video
+
+<div align="center">
+
+[![2D Solar System Demo](https://img.youtube.com/vi/UKyueJH3F4A/maxresdefault.jpg)](https://youtu.be/UKyueJH3F4A)
+
+**▶ [Watch Full Demo on YouTube](https://youtu.be/UKyueJH3F4A)**
+
+</div>
 
 ---
 
